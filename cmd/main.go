@@ -2,8 +2,9 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -17,20 +18,29 @@ func isPiped() bool {
 	return (fs.Mode() & os.ModeCharDevice) == 0
 }
 
-func main() {
-	// Check if something is being piped in
-	if !isPiped() {
-		fmt.Println("Nothing is being piped in")
-		os.Exit(0)
-	}
+func actAsServer() {
+	rdr := bufio.NewReader(os.Stdin)
 
-	r := bufio.NewReader(os.Stdin)
-	w := bufio.NewWriter(os.Stdout)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		rdr.WriteTo(w)
+	})
 
-	_, err := r.WriteTo(w)
+	http.ListenAndServe(":8080", nil)
+}
+
+func actAsClient() {
+	res, err := http.Get("http://localhost:8080")
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer res.Body.Close()
+	io.Copy(os.Stdout, bufio.NewReader(res.Body))
+}
 
-	w.Flush()
+func main() {
+	if !isPiped() {
+		actAsClient()
+	} else {
+		actAsServer()
+	}
 }
