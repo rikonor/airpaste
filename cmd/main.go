@@ -2,10 +2,15 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/rikonor/airpaste"
 )
 
 // isPiped checks if something is being piped to stdin
@@ -19,25 +24,34 @@ func isPiped() bool {
 }
 
 func actAsServer() {
-	rdr := bufio.NewReader(os.Stdin)
+	// Decide on port in range 49000 - 49999
+	port := 49000 + rand.Intn(1000)
 
+	rdr := bufio.NewReader(os.Stdin)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		rdr.WriteTo(w)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	go airpaste.PublishService("default", port)
+	http.ListenAndServe(":"+fmt.Sprint(port), nil)
 }
 
 func actAsClient() {
-	res, err := http.Get("http://localhost:8080")
+	openServer := airpaste.SearchForOpenServer("default")
+	openServerAddr := fmt.Sprintf("http://%s:%d", openServer.IPAddr, openServer.Port)
+
+	res, err := http.Get(openServerAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer res.Body.Close()
+
 	io.Copy(os.Stdout, bufio.NewReader(res.Body))
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	if !isPiped() {
 		actAsClient()
 	} else {

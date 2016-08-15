@@ -6,30 +6,30 @@ const (
 	defaultServiceName = "default"
 )
 
-type Service struct {
+type Server struct {
 	IPAddr string
 	Port   int
 }
 
-func getWaitingServers(serviceName string) []Service {
-	var waitingServers []Service
+func SearchForOpenServer(serviceName string) Server {
+	var waitingServer Server
 
 	// Create a new channel for incoming entries
 	entriesCh := make(chan *mdns.ServiceEntry)
 
 	go func() {
 		for entry := range entriesCh {
-			waitingServers = append(waitingServers, Service{
+			waitingServer = Server{
 				IPAddr: entry.Addr.String(),
 				Port:   entry.Port,
-			})
+			}
 		}
 	}()
 
 	mdns.Lookup(serviceName, entriesCh)
 	close(entriesCh)
 
-	return waitingServers
+	return waitingServer
 }
 
 // func main() {

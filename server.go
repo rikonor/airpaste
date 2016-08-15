@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/mdns"
 )
 
-func publishService(serviceName string, servicePort int) error {
+func PublishService(serviceName string, servicePort int) error {
 	host, err := os.Hostname()
 	if err != nil {
 		return err
