@@ -1,6 +1,6 @@
 package airpaste
 
-import "github.com/hashicorp/mdns"
+import "github.com/micro/mdns"
 
 const (
 	defaultServiceName = "default"
@@ -31,10 +31,3 @@ func SearchForOpenServer(serviceName string) Server {
 
 	return waitingServer
 }
-
-// func main() {
-// 	services := getWaitingServers(defaultServiceName)
-// 	for _, svc := range services {
-// 		fmt.Println(svc.IPAddr, svc.Port)
-// 	}
-// }

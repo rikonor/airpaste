@@ -3,7 +3,7 @@ package airpaste
 import (
 	"os"
 
-	"github.com/hashicorp/mdns"
+	"github.com/micro/mdns"
 )
 
 func PublishService(serviceName string, servicePort int) error {
@@ -25,14 +25,3 @@ func PublishService(serviceName string, servicePort int) error {
 	defer server.Shutdown()
 	select {}
 }
-
-// func main() {
-// 	go func() {
-// 		err := publishService(defaultServiceName, 8080)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 	}()
-//
-// 	fmt.Scanln()
-// }
