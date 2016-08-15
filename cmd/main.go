@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/braintree/manners"
 	"github.com/rikonor/airpaste"
 )
 
@@ -30,10 +31,11 @@ func actAsServer() {
 	rdr := bufio.NewReader(os.Stdin)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		rdr.WriteTo(w)
+		manners.Close()
 	})
 
 	go airpaste.PublishService("default", port)
-	http.ListenAndServe(":"+fmt.Sprint(port), nil)
+	manners.ListenAndServe(":"+fmt.Sprint(port), http.DefaultServeMux)
 }
 
 func actAsClient() {
